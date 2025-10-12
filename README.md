@@ -2,24 +2,27 @@
 
 Helping streamers resize their images and GIFs to Twitch's exact specifications.
 
-This project was inspired by [tma02/twitch-emote-resizer](https://github.com/tma02/twitch-emote-resizer). The file upload implementation is based on code from [t3dotgg/quickpic](https://github.com/t3dotgg/quickpic).
+This project was inspired by [tma02/twitch-emote-resizer](https://github.com/tma02/twitch-emote-resizer) and [t3dotgg/quickpic](https://github.com/t3dotgg/quickpic).
+
+## Built With
+
+- SvelteKit
+- Tailwind CSS
+- TypeScript
 
 ## Features
 
 - **Emotes**: Convert static images to:
-
   - 112x112 pixels (Large)
   - 56x56 pixels (Medium)
   - 28x28 pixels (Small)
 
 - **Badges**: Convert static images to:
-
   - 72x72 pixels (Large)
   - 36x36 pixels (Medium)
   - 18x18 pixels (Small)
 
 - **Animated Emotes**: Convert GIFs to:
-
   - 112x112 pixels (Large)
   - 56x56 pixels (Medium)
   - 28x28 pixels (Small)
@@ -36,22 +39,16 @@ cd emote-resizer
 2. Install the dependencies:
 
 ```bash
-pnpm install
+bun install
 ```
 
 3. Start the development server:
 
 ```bash
-pnpm dev
+bun run dev
 ```
 
 The app will be available at `http://localhost:3000`.
-
-## Built With
-
-- **[Next.js](https://nextjs.org/)**
-- **[Tailwind CSS](https://tailwindcss.com/)**
-- **[TypeScript](https://www.typescriptlang.org/)**
 
 ## License
 

@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+:root {
+  --background: oklch(0.16 0 286);
+  --foreground: oklch(0.92 0 100);
+  --primary: oklch(0.25 0 0);
+  --accent: oklch(0.59 0.25 296);
+  --muted: oklch(0.21 0.01 296);
+  --muted-foreground: oklch(0.65 0 0);
+  --twitch-dark: oklch(0.21 0 286);
+  --twitch-light: oklch(1 0 68);
+  --border: oklch(0.40 0 100);
+  --ring: oklch(0.59 0.25 296);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-twitch-dark: var(--twitch-dark);
+  --color-twitch-light: var(--twitch-light);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
