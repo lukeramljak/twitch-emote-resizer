@@ -22,8 +22,8 @@ export const POST: RequestHandler = async ({ request }) => {
             .resize({
               width: size,
               height: size,
-              fit: 'contain',
-              background: { r: 0, g: 0, b: 0, alpha: 0 }
+              fit: 'cover',
+              position: 'center'
             })
             .toBuffer();
 
