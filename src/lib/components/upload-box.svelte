@@ -31,7 +31,7 @@
     {/if}
   </div>
   <div
-    class="flex w-72 flex-col items-center justify-center gap-4 rounded-xl border bg-muted p-6 backdrop-blur-sm"
+    class="flex w-72 flex-col items-center justify-center gap-4 rounded-xl border bg-muted/30 p-6 backdrop-blur-sm"
     role="region"
     aria-label="File upload area"
   >
