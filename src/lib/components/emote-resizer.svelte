@@ -3,6 +3,7 @@
   import { EmoteConverter, type Converted } from '$lib/emote-converter.svelte';
   import { downloadImagesToZip } from '$lib/utils/image';
   import { umami } from '$lib/umami';
+  import { stripFileExtension } from '$lib/utils/image';
   import Button from './button.svelte';
   import ChatPreview from './chat-preview.svelte';
   import ImageContainer from './image-container.svelte';
@@ -102,39 +103,53 @@
 {:else if hasResults}
   <div class="flex w-full flex-col gap-8">
     <div class="mx-auto flex flex-col items-center gap-2 sm:flex-row">
-      <Button onclick={handleReset}>Reset</Button>
       {#if converter.converted.length > 1}
         <Button variant="secondary" onclick={() => handleDownloadAll(converter.converted)}
-          >Download All Emotes</Button
+          >Download All Emotes (.zip)</Button
         >
+        <Button onclick={handleReset}>Reset</Button>
       {/if}
     </div>
-    <div class="flex flex-col gap-12">
+    <div class="flex flex-col gap-16">
       {#each converter.converted as c, i (i)}
-        <div
-          class="flex flex-col items-center gap-6 rounded-xl border bg-muted/30 p-6 backdrop-blur-sm sm:p-8"
-        >
-          <h1 class="text-center text-2xl font-bold">{c.name}</h1>
-          <h2 class="font-bold">Chat Preview</h2>
-          {#if c.type === 'image' && c.badges && c.badges.length > 0}
-            <ChatPreview badge={c.badges[2]} emote={c.emotes[2]} />
-          {:else}
-            <ChatPreview emote={c.emotes[2]} />
-          {/if}
+        <div class="flex flex-col items-center gap-6">
+          <div class="flex flex-col items-center gap-2">
+            <h1 class="text-center text-2xl font-bold">{stripFileExtension(c.name)}</h1>
+            <div class="h-px w-16 bg-accent"></div>
+          </div>
+
+          <div class="flex flex-col items-center gap-4">
+            <h2 class="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+              Chat Preview
+            </h2>
+            {#if c.type === 'image' && c.badges && c.badges.length > 0}
+              <ChatPreview badge={c.badges[2]} emote={c.emotes[2]} />
+            {:else}
+              <ChatPreview emote={c.emotes[2]} />
+            {/if}
+          </div>
 
           <div class="flex w-full max-w-[800px] flex-col gap-4">
-            <h2 class="font-bold">Emotes</h2>
+            <h2 class="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+              Emotes
+            </h2>
             <ImageContainer images={c.emotes} />
           </div>
 
           {#if c.type === 'image' && c.badges && c.badges.length > 0}
             <div class="flex w-full max-w-[800px] flex-col gap-4">
-              <h2 class="font-bold">Badges</h2>
+              <h2 class="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+                Badges
+              </h2>
               <ImageContainer images={c.badges} />
             </div>
           {/if}
-          <Button onclick={() => handleDownload(c)}>Download Set</Button>
+          <Button variant="secondary" onclick={() => handleDownload(c)}>Download Set (.zip)</Button>
         </div>
+
+        {#if i < converter.converted.length - 1}
+          <div class="mx-auto h-px w-full max-w-md bg-border/30"></div>
+        {/if}
       {/each}
     </div>
   </div>

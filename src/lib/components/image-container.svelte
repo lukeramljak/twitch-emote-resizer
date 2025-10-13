@@ -13,28 +13,38 @@
   };
 </script>
 
-<div class="grid gap-4 sm:grid-cols-3">
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
   {#each images as image, i (i)}
     <button
       type="button"
-      class="flex cursor-pointer flex-col justify-between rounded-md border bg-twitch-dark/80 transition-colors outline-none hover:bg-twitch-dark focus:ring-1 focus:ring-accent"
+      class="group relative overflow-hidden rounded-lg border border-border/50 bg-muted transition-all duration-300 hover:border-accent focus:ring-2 focus:ring-accent/50 focus:outline-none"
       onclick={() => handleClick(image)}
     >
-      <div class="flex h-[calc(112px+2rem)] items-center justify-center">
+      <div class="relative flex aspect-square items-center justify-center bg-primary/30">
         <img
           src={image.content}
           alt={`Preview of ${image.metadata.width}x${image.metadata.height} image`}
           width={image.metadata.width}
           height={image.metadata.height}
+          class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-110"
         />
+
+        <div
+          class="absolute inset-0 flex items-center justify-center bg-background/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        >
+          <span class="text-sm font-semibold text-accent">Click to Download</span>
+        </div>
       </div>
-      <div
-        class="flex flex-col items-center justify-between rounded-b-md bg-accent p-2 text-xs font-bold md:flex-row"
-      >
-        <span>
-          {image.metadata.width}px x {image.metadata.height}px
-        </span>
-        <span>{image.fileSize}KB</span>
+
+      <div class="border-t border-border/30 bg-primary/50 p-3">
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-medium text-muted-foreground">
+            {image.metadata.width} × {image.metadata.height}
+          </span>
+          <span class="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+            {image.fileSize}KB
+          </span>
+        </div>
       </div>
     </button>
   {/each}
