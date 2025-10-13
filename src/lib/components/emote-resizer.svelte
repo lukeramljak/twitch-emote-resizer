@@ -114,7 +114,7 @@
         <div
           class="flex flex-col items-center gap-6 rounded-xl border bg-muted/30 p-6 backdrop-blur-sm sm:p-8"
         >
-          <h1 class="text-2xl font-bold">{c.name}</h1>
+          <h1 class="text-center text-2xl font-bold">{c.name}</h1>
           <h2 class="font-bold">Chat Preview</h2>
           {#if c.type === 'image' && c.badges && c.badges.length > 0}
             <ChatPreview badge={c.badges[2]} emote={c.emotes[2]} />

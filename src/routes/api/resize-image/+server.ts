@@ -25,6 +25,7 @@ export const POST: RequestHandler = async ({ request }) => {
               fit: 'cover',
               position: 'center'
             })
+            .png({ compressionLevel: 0 })
             .toBuffer();
 
           const fileSize = (Buffer.byteLength(resizedImage) / 1024).toFixed(2); // File size in KB

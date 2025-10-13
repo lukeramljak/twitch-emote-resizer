@@ -24,6 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
           fit: 'cover',
           position: 'center'
         })
+        .gif()
         .toBuffer();
 
       const fileSize = (Buffer.byteLength(resizedGif) / 1024).toFixed(2); // File size in KB
