@@ -8,6 +8,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const formData = await request.formData();
     const base64String = formData.get('file') as string;
     const metadata = JSON.parse(formData.get('metadata') as string) as ImageMetadata;
+
     const cleanedBase64 = base64String.replace(/^data:image\/(png|gif|jpeg|jpg|webp);base64,/, '');
 
     const buffer = Buffer.from(cleanedBase64, 'base64');
