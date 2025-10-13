@@ -46,24 +46,25 @@
 
     const files = e.dataTransfer?.files;
     if (files && files.length > 0) {
-      const droppedFile = files[0];
+      for (let i = 0; i < files.length; i++) {
+        const droppedFile = files[i];
 
-      if (!droppedFile) {
-        alert('No files dropped');
-        throw new Error('No files dropped');
+        if (!droppedFile) {
+          continue;
+        }
+
+        if (
+          !acceptedFileTypes.includes(droppedFile.type) &&
+          !acceptedFileTypes.some((type) =>
+            droppedFile.name.toLowerCase().endsWith(type.replace('*', ''))
+          )
+        ) {
+          alert(`Invalid file type for ${droppedFile.name}. Please upload a supported file type.`);
+          continue;
+        }
+
+        setCurrentFile(droppedFile);
       }
-
-      if (
-        !acceptedFileTypes.includes(droppedFile.type) &&
-        !acceptedFileTypes.some((type) =>
-          droppedFile.name.toLowerCase().endsWith(type.replace('*', ''))
-        )
-      ) {
-        alert('Invalid file type. Please upload a supported file type.');
-        throw new Error('Invalid file');
-      }
-
-      setCurrentFile(droppedFile);
     }
   };
 </script>

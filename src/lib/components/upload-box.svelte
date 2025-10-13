@@ -12,10 +12,10 @@
 
   let { title, subtitle, description, accept, onChange }: Props = $props();
 
-  let input: HTMLInputElement;
+  let inputElement: HTMLInputElement;
 
   const handleClick = () => {
-    input.click();
+    inputElement.click();
   };
 </script>
 
@@ -57,9 +57,13 @@
       onclick={handleClick}
       aria-label={`${description} - Supported formats: ${accept}`}>{description}</Button
     >
+    <p class="text-center text-xs text-muted-foreground">
+      Select multiple files for batch processing
+    </p>
     <input
-      bind:this={input}
+      bind:this={inputElement}
       type="file"
+      multiple
       onchangecapture={onChange}
       {accept}
       hidden

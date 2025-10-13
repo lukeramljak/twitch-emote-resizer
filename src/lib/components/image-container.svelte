@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { ResizedImage } from '$lib/types';
   import { downloadImage } from '$lib/utils/image';
-  import { umami } from '$lib/umami';
 
   interface Props {
     images: ResizedImage[];
@@ -10,11 +9,6 @@
   let { images }: Props = $props();
 
   const handleClick = (image: ResizedImage) => {
-    umami.track('download-single', {
-      width: image.metadata.width,
-      height: image.metadata.height,
-      type: image.type
-    });
     downloadImage(image);
   };
 </script>

@@ -1,10 +1,16 @@
 import type { ImageMetadata, ResizedImage } from './types';
 
+export interface Converted {
+  name: string;
+  type: 'image' | 'gif';
+  badges?: ResizedImage[];
+  emotes: ResizedImage[];
+}
+
 export class EmoteConverter {
   converting = $state(false);
   error = $state('');
-  emotes = $state<ResizedImage[]>([]);
-  badges = $state<ResizedImage[]>([]);
+  converted = $state<Converted[]>([]);
 
   private convertGif = async (base64: string, metadata: ImageMetadata) => {
     const formData = new FormData();
@@ -49,8 +55,12 @@ export class EmoteConverter {
     try {
       const { emotes, badges } = await this.convertImageAPI(imageContent, imageMetadata);
 
-      this.emotes = emotes;
-      this.badges = badges;
+      this.converted.push({
+        name: imageMetadata.name,
+        type: 'image',
+        emotes,
+        badges
+      });
 
       return true;
     } catch (e) {
@@ -66,7 +76,12 @@ export class EmoteConverter {
     this.error = '';
 
     try {
-      this.emotes = await this.convertGif(base64, metadata);
+      this.converted.push({
+        name: metadata.name,
+        type: 'gif',
+        emotes: await this.convertGif(base64, metadata)
+      });
+
       return true;
     } catch (e) {
       this.error = e instanceof Error ? e.message : 'An unexpected error occurred';
@@ -77,8 +92,8 @@ export class EmoteConverter {
   };
 
   reset = () => {
-    this.emotes = [];
-    this.badges = [];
+    this.converted = [];
     this.error = '';
+    this.converting = false;
   };
 }

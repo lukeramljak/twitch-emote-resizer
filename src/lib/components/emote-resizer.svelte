@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { FileUploader } from '$lib/file-uploader.svelte';
-  import { EmoteConverter } from '$lib/emote-converter.svelte';
+  import { EmoteConverter, type Converted } from '$lib/emote-converter.svelte';
   import { downloadImagesToZip } from '$lib/utils/image';
   import { umami } from '$lib/umami';
   import Button from './button.svelte';
@@ -17,113 +17,123 @@
 
   const converter = new EmoteConverter();
 
-  let isGif = $state(false);
+  let processing = $state(false);
+  let hasProcessed = false;
+  const hasResults = $derived(converter.converted.length > 0);
 
-  const processFile = async () => {
-    if (!fileUploader.imageMetadata) return;
+  const processFiles = async () => {
+    if (fileUploader.processedFiles.length === 0) return;
 
-    isGif = fileUploader.imageMetadata.name.toLowerCase().endsWith('.gif');
+    processing = true;
 
-    umami.track('conversion-started', {
-      type: isGif ? 'gif' : 'image'
-    });
+    const fileCount = fileUploader.processedFiles.length;
+    const isMultiple = fileCount > 1;
 
-    if (isGif && fileUploader.rawContent) {
-      const success = await converter.convertAnimated(
-        fileUploader.rawContent,
-        fileUploader.imageMetadata
-      );
-      if (!success) {
-        fileUploader.reset();
-        umami.track('conversion-failed', { type: 'gif' });
-      } else {
-        umami.track('conversion-success', { type: 'gif' });
+    for (const file of fileUploader.processedFiles) {
+      if (!file.imageMetadata) {
+        continue;
       }
-    } else if (!isGif && fileUploader.imageContent) {
-      const success = await converter.convertImage(
-        fileUploader.imageContent,
-        fileUploader.imageMetadata
-      );
-      if (!success) {
-        fileUploader.reset();
-        umami.track('conversion-failed', { type: 'image' });
-      } else {
-        umami.track('conversion-success', { type: 'image' });
+
+      const isGif = file.imageMetadata.name.toLowerCase().endsWith('.gif');
+
+      if (isGif && file.rawContent) {
+        const success = await converter.convertAnimated(file.rawContent, file.imageMetadata);
+        if (success) {
+          umami.track('conversion', { multiple: isMultiple });
+        }
+        if (!success) {
+          fileUploader.reset();
+        }
+      } else if (!isGif && file.imageContent) {
+        const success = await converter.convertImage(file.imageContent, file.imageMetadata);
+        if (success) {
+          umami.track('conversion', { multiple: isMultiple });
+        }
+        if (!success) {
+          fileUploader.reset();
+        }
       }
     }
+
+    processing = false;
   };
 
   $effect(() => {
-    if (fileUploader.imageMetadata && (fileUploader.imageContent || fileUploader.rawContent)) {
-      processFile();
+    if (fileUploader.processedFiles.length > 0 && !hasProcessed) {
+      hasProcessed = true;
+      processFiles();
     }
   });
 
-  const handleNewImage = () => {
+  const handleReset = () => {
     fileUploader.reset();
     converter.reset();
-    isGif = false;
+    hasProcessed = false;
   };
 
-  const handleDownloadAllImages = async () => {
-    umami.track('download-all', {
-      type: isGif ? 'gif' : 'image',
-      count: isGif ? converter.emotes.length : converter.emotes.length + converter.badges.length
-    });
+  const handleDownloadAll = async (images: Converted[]) => {
+    umami.track('download');
+    const allImages = images.flatMap((img) => [...img.emotes, ...(img.badges ?? [])]);
+    await downloadImagesToZip(allImages, 'export');
+  };
 
-    if (isGif) {
-      await downloadImagesToZip(converter.emotes);
-    } else {
-      await downloadImagesToZip([...converter.badges, ...converter.emotes]);
-    }
+  const handleDownload = async (images: Converted) => {
+    umami.track('download');
+    await downloadImagesToZip([...(images.badges ?? []), ...images.emotes]);
   };
 
   $effect(() => {
     if (converter.error) {
       alert(converter.error);
-      handleNewImage();
+      handleReset();
     }
   });
-
-  const hasResults = $derived(
-    (isGif && converter.emotes.length > 0) ||
-      (!isGif && converter.emotes.length > 0 && converter.badges.length > 0)
-  );
 </script>
 
-{#if converter.converting}
+{#if processing}
   <Loader message="Processing..." />
-{:else if !fileUploader.imageMetadata}
+{:else if fileUploader.processedFiles.length === 0}
   <UploadBox
     title="Convert images or GIFs to multiple sizes"
-    description="Upload image or GIF"
+    description="Upload images or GIFs"
     accept="image/*,.gif"
     onChange={fileUploader.handleFileUploadEvent}
   />
 {:else if hasResults}
-  <div class="flex flex-col items-center gap-6">
-    <h1 class="font-bold">Chat Preview</h1>
-    {#if isGif}
-      <ChatPreview emote={converter.emotes[2]} />
-    {:else}
-      <ChatPreview badge={converter.badges[2]} emote={converter.emotes[2]} />
-    {/if}
-
-    <div class="flex w-full max-w-[800px] flex-col gap-4">
-      <h2 class="font-bold">Emotes</h2>
-      <ImageContainer images={converter.emotes} />
+  <div class="flex w-full flex-col gap-8">
+    <div class="mx-auto flex flex-col items-center gap-2 sm:flex-row">
+      <Button onclick={handleReset}>Reset</Button>
+      {#if converter.converted.length > 1}
+        <Button variant="secondary" onclick={() => handleDownloadAll(converter.converted)}
+          >Download All Emotes</Button
+        >
+      {/if}
     </div>
+    <div class="flex flex-col gap-12">
+      {#each converter.converted as c, i (i)}
+        <div class="flex flex-col items-center gap-6">
+          <h1 class="text-2xl font-bold">{c.name}</h1>
+          <h2 class="font-bold">Chat Preview</h2>
+          {#if c.type === 'image' && c.badges && c.badges.length > 0}
+            <ChatPreview badge={c.badges[2]} emote={c.emotes[2]} />
+          {:else}
+            <ChatPreview emote={c.emotes[2]} />
+          {/if}
 
-    {#if !isGif && converter.badges.length > 0}
-      <div class="flex w-full max-w-[800px] flex-col gap-4">
-        <h2 class="font-bold">Badges</h2>
-        <ImageContainer images={converter.badges} />
-      </div>
-    {/if}
+          <div class="flex w-full max-w-[800px] flex-col gap-4">
+            <h2 class="font-bold">Emotes</h2>
+            <ImageContainer images={c.emotes} />
+          </div>
 
-    <div class="flex gap-2">
-      <Button onclick={handleNewImage}>New Image</Button>
-      <Button onclick={handleDownloadAllImages}>Download All</Button>
+          {#if c.type === 'image' && c.badges && c.badges.length > 0}
+            <div class="flex w-full max-w-[800px] flex-col gap-4">
+              <h2 class="font-bold">Badges</h2>
+              <ImageContainer images={c.badges} />
+            </div>
+          {/if}
+          <Button onclick={() => handleDownload(c)}>Download Set</Button>
+        </div>
+      {/each}
     </div>
   </div>
 {/if}

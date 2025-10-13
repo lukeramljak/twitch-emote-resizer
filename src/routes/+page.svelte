@@ -19,7 +19,7 @@
     </p>
     <FileDropzone
       acceptedFileTypes={['image/*', '.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif']}
-      dropText="Drop image or GIF file"
+      dropText="Drop image or GIF files"
       setCurrentFile={fileUploader.handleFileUpload}
     >
       <EmoteResizer {fileUploader} />

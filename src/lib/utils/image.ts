@@ -21,16 +21,16 @@ export const downloadImage = (image: ResizedImage): void => {
   link.click();
 };
 
-export const downloadImagesToZip = async (images: ResizedImage[]) => {
-  if (!images.length) return;
+export const downloadImagesToZip = async (images: ResizedImage[], fileName?: string) => {
+  if (images.length === 0) return;
 
   const zip = new JSZip();
 
   for (const image of images) {
     const imgBuffer = await (await fetch(image.content)).arrayBuffer();
-    const fileName = generateFileName(image);
+    const imgFileName = generateFileName(image);
 
-    zip.file(fileName, imgBuffer);
+    zip.file(imgFileName, imgBuffer);
   }
 
   const gen = await zip.generateAsync({ type: 'uint8array' });
@@ -40,7 +40,7 @@ export const downloadImagesToZip = async (images: ResizedImage[]) => {
 
   const link = document.createElement('a');
   link.href = zipUrl;
-  link.download = `${stripFileExtension(images[0].metadata.name)}.zip`;
+  link.download = `${fileName ?? stripFileExtension(images[0].metadata.name)}.zip`;
   link.click();
 
   URL.revokeObjectURL(zipUrl);
