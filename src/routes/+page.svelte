@@ -8,14 +8,15 @@
 </script>
 
 <svelte:head>
-  <title>Twitch Emote Resizer - Free Image and GIF Converter</title>
+  <title>Twitch Emote Resizer - Batch Upload Images & Animated GIFs</title>
 </svelte:head>
 
 <div class="flex min-h-dvh flex-col p-8 sm:p-20">
   <main class="row-start-2 flex grow flex-col items-center justify-center gap-6">
     <h1 class="text-2xl font-bold">Twitch Emote Resizer</h1>
     <p class="text-center text-sm">
-      Convert images and GIFs to use for your Twitch channel, totally free.
+      Batch convert images and animated GIFs to multiple sizes for your Twitch channel. Upload
+      multiple files at once, totally free.
     </p>
     <FileDropzone
       acceptedFileTypes={['image/*', '.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif']}
