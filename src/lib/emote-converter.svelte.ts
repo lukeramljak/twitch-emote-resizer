@@ -64,7 +64,10 @@ export class EmoteConverter {
 
       return true;
     } catch (e) {
-      this.error = e instanceof Error ? e.message : 'Failed to convert images. Please try again';
+      this.error =
+        e instanceof Error
+          ? `Failed to convert "${imageMetadata.name}": ${e.message}`
+          : `Failed to convert "${imageMetadata.name}". Please try again`;
       return false;
     } finally {
       this.converting = false;
@@ -84,7 +87,10 @@ export class EmoteConverter {
 
       return true;
     } catch (e) {
-      this.error = e instanceof Error ? e.message : 'An unexpected error occurred';
+      this.error =
+        e instanceof Error
+          ? `Failed to convert "${metadata.name}": ${e.message}`
+          : `Failed to convert "${metadata.name}". An unexpected error occurred`;
       return false;
     } finally {
       this.converting = false;
