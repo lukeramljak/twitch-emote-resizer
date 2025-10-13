@@ -1,4 +1,12 @@
-export const parseSvgFile = (content: string, fileName: string) => {
+import type { ImageMetadata } from '$lib/types';
+
+export const parseSvgFile = (
+  content: string,
+  fileName: string
+): {
+  content: string;
+  metadata: ImageMetadata;
+} => {
   const parser = new DOMParser();
   const svgDoc = parser.parseFromString(content, 'image/svg+xml');
   const svgElement = svgDoc.documentElement;
@@ -24,7 +32,7 @@ export const parseImageFile = (
   fileName: string
 ): Promise<{
   content: string;
-  metadata: { width: number; height: number; name: string };
+  metadata: ImageMetadata;
 }> => {
   return new Promise((resolve) => {
     const img = new Image();
@@ -47,7 +55,7 @@ export const parseGifFile = (
   fileName: string
 ): Promise<{
   content: string;
-  metadata: { width: number; height: number; name: string };
+  metadata: ImageMetadata;
 }> => {
   return new Promise((resolve) => {
     const img = new Image();
