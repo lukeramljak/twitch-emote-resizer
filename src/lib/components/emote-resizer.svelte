@@ -107,8 +107,8 @@
         <Button variant="secondary" onclick={() => handleDownloadAll(converter.converted)}
           >Download All Emotes (.zip)</Button
         >
-        <Button onclick={handleReset}>Reset</Button>
       {/if}
+      <Button onclick={handleReset}>Reset</Button>
     </div>
     <div class="flex flex-col gap-16">
       {#each converter.converted as c, i (i)}
