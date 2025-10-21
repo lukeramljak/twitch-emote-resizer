@@ -1,5 +1,5 @@
 /**
- * Compresses an image to fit within Netlify's function body size limit
+ * Compresses an image to fit within body size limit
  */
 export const compressImageIfNeeded = async (
   file: File,
