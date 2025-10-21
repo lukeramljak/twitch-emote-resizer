@@ -1,6 +1,5 @@
 import type { FileUploadEvent, ImageMetadata } from './types';
 import { parseGifFile, parseImageFile, parseSvgFile } from './utils/file-processing';
-import { compressImageIfNeeded } from './utils/image-compression';
 
 interface ProcessedFile {
   /** The processed image content as a data URL (for regular images) or object URL (for SVGs) */
@@ -18,13 +17,14 @@ export class FileUploader {
     const isGif = file.type === 'image/gif';
     const isSvg = file.type === 'image/svg+xml';
 
-    const maxSizeMB = 5;
-    if (file.size > maxSizeMB * 1024 * 1024) {
-      if (isGif) {
-        alert(
-          `GIF file "${file.name}" is ${(file.size / 1024 / 1024).toFixed(1)}MB. Large GIFs may fail to process. Consider reducing file size or frame count.`
-        );
-      }
+    const maxSizeMB = 10;
+    const fileSizeMB = file.size / 1024 / 1024;
+
+    if (fileSizeMB > maxSizeMB) {
+      alert(
+        `File "${file.name}" is too large (${fileSizeMB.toFixed(1)}MB). Maximum file size is ${maxSizeMB}MB.`
+      );
+      return;
     }
 
     const processedFile: ProcessedFile = {
@@ -56,17 +56,16 @@ export class FileUploader {
       };
       reader.readAsDataURL(file);
     } else {
-      const { content, wasCompressed } = await compressImageIfNeeded(file, 2);
-      processedFile.rawContent = content;
-      const { content: imgContent, metadata } = await parseImageFile(content, file.name);
-      processedFile.imageContent = imgContent;
-      processedFile.imageMetadata = metadata;
-
-      if (wasCompressed) {
-        console.log(`Compressed ${file.name} to fit upload limits`);
-      }
-
-      this.processedFiles.push(processedFile);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const content = e.target?.result as string;
+        processedFile.rawContent = content;
+        const { content: imgContent, metadata } = await parseImageFile(content, file.name);
+        processedFile.imageContent = imgContent;
+        processedFile.imageMetadata = metadata;
+        this.processedFiles.push(processedFile);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
