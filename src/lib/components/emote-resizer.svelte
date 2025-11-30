@@ -105,7 +105,7 @@
     <div class="mx-auto flex flex-col items-center gap-2 sm:flex-row">
       {#if converter.converted.length > 1}
         <Button variant="secondary" onclick={() => handleDownloadAll(converter.converted)}
-          >Download All Emotes (.zip)</Button
+          >Download All (.zip)</Button
         >
       {/if}
       <Button onclick={handleReset}>Reset</Button>
