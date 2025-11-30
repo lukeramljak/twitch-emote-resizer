@@ -29,31 +29,13 @@
 
     const fileCount = fileUploader.processedFiles.length;
     const isMultiple = fileCount > 1;
+    umami.track('conversion', { multiple: isMultiple });
 
     for (const file of fileUploader.processedFiles) {
       if (!file.imageMetadata) {
         continue;
       }
-
-      const isGif = file.imageMetadata.name.toLowerCase().endsWith('.gif');
-
-      if (isGif && file.rawContent) {
-        const success = await converter.convertAnimated(file.rawContent, file.imageMetadata);
-        if (success) {
-          umami.track('conversion', { multiple: isMultiple });
-        }
-        if (!success) {
-          fileUploader.reset();
-        }
-      } else if (!isGif && file.imageContent) {
-        const success = await converter.convertImage(file.imageContent, file.imageMetadata);
-        if (success) {
-          umami.track('conversion', { multiple: isMultiple });
-        }
-        if (!success) {
-          fileUploader.reset();
-        }
-      }
+      await converter.convert(file);
     }
 
     processing = false;

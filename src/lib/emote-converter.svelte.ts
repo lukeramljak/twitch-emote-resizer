@@ -1,4 +1,7 @@
-import type { ImageMetadata, ResizedImage } from './types';
+import { isHttpError } from '@sveltejs/kit';
+import { resizeGif, resizeImage } from '../routes/resize/resize.remote';
+import type { ProcessedFile } from './file-uploader.svelte';
+import type { ResizedImage } from './types';
 
 export interface Converted {
   name: string;
@@ -12,86 +15,49 @@ export class EmoteConverter {
   error = $state('');
   converted = $state<Converted[]>([]);
 
-  private convertGif = async (base64: string, metadata: ImageMetadata) => {
-    const formData = new FormData();
-    formData.append('file', base64);
-    formData.append('metadata', JSON.stringify(metadata));
-
-    const response = await fetch('/api/resize-gif', {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to resize GIF. Please try again');
-    }
-
-    const result: ResizedImage[] = await response.json();
-    return result || [];
-  };
-
-  private convertImageAPI = async (base64: string, metadata: ImageMetadata) => {
-    const formData = new FormData();
-    formData.append('file', base64);
-    formData.append('metadata', JSON.stringify(metadata));
-
-    const response = await fetch('/api/resize-image', {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to resize image. Please try again');
-    }
-
-    const result: { emotes: ResizedImage[]; badges: ResizedImage[] } = await response.json();
-    return result;
-  };
-
-  convertImage = async (imageContent: string, imageMetadata: ImageMetadata) => {
+  convert = async (file: ProcessedFile): Promise<void> => {
     this.converting = true;
     this.error = '';
 
-    try {
-      const { emotes, badges } = await this.convertImageAPI(imageContent, imageMetadata);
-
-      this.converted.push({
-        name: imageMetadata.name,
-        type: 'image',
-        emotes,
-        badges
-      });
-
-      return true;
-    } catch (e) {
-      this.error =
-        e instanceof Error
-          ? `Failed to convert "${imageMetadata.name}": ${e.message}`
-          : `Failed to convert "${imageMetadata.name}". Please try again`;
-      return false;
-    } finally {
+    const meta = file.imageMetadata;
+    if (!meta) {
+      this.error = 'Missing image metadata';
       this.converting = false;
+      return;
     }
-  };
 
-  convertAnimated = async (base64: string, metadata: ImageMetadata) => {
-    this.converting = true;
-    this.error = '';
+    const name = meta.name;
+    const gif = name.toLowerCase().endsWith('.gif');
 
     try {
-      this.converted.push({
-        name: metadata.name,
-        type: 'gif',
-        emotes: await this.convertGif(base64, metadata)
-      });
+      if (gif) {
+        if (!file.rawContent) {
+          throw new Error('No GIF data');
+        }
 
-      return true;
-    } catch (e) {
-      this.error =
-        e instanceof Error
-          ? `Failed to convert "${metadata.name}": ${e.message}`
-          : `Failed to convert "${metadata.name}". An unexpected error occurred`;
-      return false;
+        const emotes = await resizeGif({ file: file.rawContent, metadata: meta });
+        this.converted.push({ name, type: 'gif', emotes });
+      } else {
+        if (!file.imageContent) {
+          throw new Error('No image data');
+        }
+
+        const resized = await resizeImage({ file: file.imageContent, metadata: meta });
+        this.converted.push({
+          name,
+          type: 'image',
+          emotes: resized.emotes,
+          badges: resized.badges
+        });
+      }
+    } catch (error) {
+      if (isHttpError(error)) {
+        this.error = `Failed to resize ${name}: ${error.body.message}`;
+      } else if (error instanceof Error) {
+        this.error = `Failed to resize ${name}: ${error.message}`;
+      } else {
+        this.error = 'Failed to resize image: Unexpected error';
+      }
     } finally {
       this.converting = false;
     }

@@ -1,7 +1,7 @@
 import type { FileUploadEvent, ImageMetadata } from './types';
 import { parseGifFile, parseImageFile, parseSvgFile } from './utils/file-processing';
 
-interface ProcessedFile {
+export interface ProcessedFile {
   /** The processed image content as a data URL (for regular images) or object URL (for SVGs) */
   imageContent: string;
   /** The raw file content as a string */
