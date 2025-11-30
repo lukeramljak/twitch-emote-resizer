@@ -16,35 +16,43 @@ export const POST: RequestHandler = async ({ request }) => {
     const emoteSizes = [112, 56, 28];
     const badgeSizes = [72, 36, 18];
 
-    const resizeToSizes = async (sizes: number[]): Promise<ResizedImage[]> => {
-      return await Promise.all(
-        sizes.map(async (size) => {
-          const resizedImage = await sharp(buffer)
-            .resize({
-              width: size,
-              height: size,
-              fit: 'cover',
-              position: 'center'
-            })
-            .png({ compressionLevel: 0 })
-            .toBuffer();
+    const resizeAndConstrain = async (size: number): Promise<ResizedImage> => {
+      const maxKB = 25;
+      let colors = 256;
 
-          const fileSize = (Buffer.byteLength(resizedImage) / 1024).toFixed(2); // File size in KB
-          const base64WithPrefix = `data:image/png;base64,${resizedImage.toString('base64')}`;
-
-          return {
-            content: base64WithPrefix,
-            fileSize,
-            metadata: {
-              width: size,
-              height: size,
-              name: metadata?.name ?? 'image'
-            },
-            type: 'image'
-          };
+      let out = await sharp(buffer)
+        .resize({
+          width: size,
+          height: size,
+          fit: 'cover',
+          position: 'center'
         })
-      );
+        .png({ compressionLevel: 0, palette: true, colors })
+        .toBuffer();
+
+      while (out.length > maxKB * 1024 && colors > 2) {
+        colors = Math.floor(colors / 2);
+        out = await sharp(buffer)
+          .resize(size, size, { fit: 'cover', position: 'center' })
+          .png({ compressionLevel: 0, palette: true, colors })
+          .toBuffer();
+      }
+
+      const base64 = `data:image/png;base64,${out.toString('base64')}`;
+
+      return {
+        content: base64,
+        fileSize: (out.length / 1024).toFixed(2),
+        metadata: {
+          width: size,
+          height: size,
+          name: metadata?.name ?? 'image'
+        },
+        type: 'image'
+      };
     };
+
+    const resizeToSizes = async (sizes: number[]) => Promise.all(sizes.map(resizeAndConstrain));
 
     const [emotes, badges] = await Promise.all([
       resizeToSizes(emoteSizes),

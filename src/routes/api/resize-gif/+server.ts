@@ -16,31 +16,50 @@ export const POST: RequestHandler = async ({ request }) => {
 
     const resizedImages: ResizedImage[] = [];
 
-    for (const size of sizes) {
-      const resizedGif = await sharp(buffer, { animated: true })
+    const resizeAndConstrain = async (size: number): Promise<ResizedImage> => {
+      const maxKB = 1000;
+      let colors = 256;
+
+      let out = await sharp(buffer, { animated: true })
         .resize({
           width: size,
           height: size,
           fit: 'cover',
           position: 'center'
         })
-        .gif()
+        .gif({ colors })
         .toBuffer();
 
-      const fileSize = (Buffer.byteLength(resizedGif) / 1024).toFixed(2); // File size in KB
+      while (out.length < maxKB * 1024 && colors < 2) {
+        colors = Math.floor(colors / 2);
+        out = await sharp(buffer, { animated: true })
+          .resize({
+            width: size,
+            height: size,
+            fit: 'cover',
+            position: 'center'
+          })
+          .gif({ colors })
+          .toBuffer();
+      }
 
-      const base64WithPrefix = `data:image/gif;base64,${resizedGif.toString('base64')}`;
+      const base64 = `data:image/gif;base64,${out.toString('base64')}`;
 
-      resizedImages.push({
-        content: base64WithPrefix,
-        fileSize,
+      return {
+        content: base64,
+        fileSize: (out.length / 1024).toFixed(2),
         metadata: {
           width: size,
           height: size,
           name: metadata?.name ?? 'animated'
         },
         type: 'gif'
-      });
+      };
+    };
+
+    for (const size of sizes) {
+      const resized = await resizeAndConstrain(size);
+      resizedImages.push(resized);
     }
 
     return json(resizedImages, { status: 200 });
