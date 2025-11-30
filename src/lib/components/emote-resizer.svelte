@@ -123,9 +123,9 @@
               Chat Preview
             </h2>
             {#if c.type === 'image' && c.badges && c.badges.length > 0}
-              <ChatPreview badge={c.badges[2]} emote={c.emotes[2]} />
+              <ChatPreview badge={c.badges[0]} emote={c.emotes[0]} />
             {:else}
-              <ChatPreview emote={c.emotes[2]} />
+              <ChatPreview emote={c.emotes[0]} />
             {/if}
           </div>
 
