@@ -1,7 +1,7 @@
-import * as v from 'valibot';
 import { command } from '$app/server';
-import sharp from 'sharp';
 import type { ResizedImage } from '$lib/types';
+import sharp from 'sharp';
+import * as v from 'valibot';
 
 const imageSchema = v.object({
   file: v.string(),
@@ -24,6 +24,7 @@ export const resizeImage = command(imageSchema, async ({ file, metadata }) => {
     let colors = 256;
 
     let out = await sharp(buffer)
+      .rotate()
       .resize({
         width: size,
         height: size,
@@ -36,6 +37,7 @@ export const resizeImage = command(imageSchema, async ({ file, metadata }) => {
     while (out.length > maxKB * 1024 && colors > 2) {
       colors = Math.floor(colors / 2);
       out = await sharp(buffer)
+        .rotate()
         .resize(size, size, { fit: 'cover', position: 'center' })
         .png({ compressionLevel: 0, palette: true, colors })
         .toBuffer();
