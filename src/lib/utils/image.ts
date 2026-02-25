@@ -10,7 +10,7 @@ export const stripFileExtension = (fileName: string): string => {
 };
 
 export const generateFileName = (image: ResizedImage): string => {
-  const extension = image.type === 'image' ? 'png' : 'gif';
+  const extension = image.content.match(/^data:image\/(\w+);base64,/)?.[1] ?? 'png';
   return `${stripFileExtension(image.metadata.name)}@${image.metadata.width}.${extension}`;
 };
 
