@@ -38,7 +38,7 @@ export class FileUploader {
       reader.onload = async (e) => {
         const content = e.target?.result as string;
         processedFile.rawContent = content;
-        const { content: svgContent, metadata } = parseSvgFile(content, file.name);
+        const { content: svgContent, metadata } = await parseSvgFile(content, file.name);
         processedFile.imageContent = svgContent;
         processedFile.imageMetadata = metadata;
         this.processedFiles.push(processedFile);

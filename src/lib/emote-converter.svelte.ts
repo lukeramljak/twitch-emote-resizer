@@ -1,5 +1,4 @@
-import { isHttpError } from '@sveltejs/kit';
-import { resizeGif, resizeImage } from '../routes/resize/resize.remote';
+import { invoke } from '@tauri-apps/api/core';
 import type { ProcessedFile } from './file-uploader.svelte';
 import type { ResizedImage } from './types';
 
@@ -35,14 +34,23 @@ export class EmoteConverter {
           throw new Error('No GIF data');
         }
 
-        const emotes = await resizeGif({ file: file.rawContent, metadata: meta });
+        const emotes = await invoke<ResizedImage[]>('resize_gif', {
+          file: file.rawContent,
+          metadata: meta
+        });
         this.converted.push({ name, type: 'gif', emotes });
       } else {
         if (!file.imageContent) {
           throw new Error('No image data');
         }
 
-        const resized = await resizeImage({ file: file.imageContent, metadata: meta });
+        const resized = await invoke<{ emotes: ResizedImage[]; badges: ResizedImage[] }>(
+          'resize_image',
+          {
+            file: file.imageContent,
+            metadata: meta
+          }
+        );
         this.converted.push({
           name,
           type: 'image',
@@ -51,10 +59,10 @@ export class EmoteConverter {
         });
       }
     } catch (error) {
-      if (isHttpError(error)) {
-        this.error = `Failed to resize ${name}: ${error.body.message}`;
-      } else if (error instanceof Error) {
+      if (error instanceof Error) {
         this.error = `Failed to resize ${name}: ${error.message}`;
+      } else if (typeof error === 'string') {
+        this.error = `Failed to resize ${name}: ${error}`;
       } else {
         this.error = 'Failed to resize image: Unexpected error';
       }

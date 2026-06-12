@@ -32,61 +32,27 @@
         When you use this tool, you upload images or GIFs for resizing. These files are:
       </p>
       <ul class="my-4 list-disc space-y-2 pl-6">
-        <li class="leading-7">Processed on the server to generate resized versions</li>
-        <li class="leading-7">Temporarily stored in memory during processing</li>
+        <li class="leading-7">Processed entirely on your device (locally)</li>
+        <li class="leading-7">
+          <strong class="font-semibold">Never sent</strong> to any server or third party
+        </li>
         <li class="leading-7">
           <strong class="font-semibold">Not saved</strong> to any database or permanent storage
         </li>
-        <li class="leading-7">
-          <strong class="font-semibold">Not shared</strong> with any third parties
-        </li>
-        <li class="leading-7">Deleted immediately after processing is complete</li>
+        <li class="leading-7">Cleared from memory immediately after processing is complete</li>
       </ul>
-
-      <h3 class="mt-6 mb-3 text-xl font-semibold">Analytics Data</h3>
-      <p class="mb-4 leading-7">
-        This tool uses Umami Analytics for privacy-friendly analytics to understand how it's being
-        used and to improve the user experience. Umami collects:
-      </p>
-      <ul class="my-4 list-disc space-y-2 pl-6">
-        <li class="leading-7">Pages visited and features used</li>
-        <li class="leading-7">Browser type and version</li>
-        <li class="leading-7">Device information (desktop, mobile, tablet)</li>
-        <li class="leading-7">General location (country/region level, not precise)</li>
-        <li class="leading-7">Custom events (conversions, downloads)</li>
-      </ul>
-      <p class="mb-4 leading-7">
-        Umami is privacy-focused and does not use cookies or track personal data. It does not track
-        your uploaded images or their content. For more information about Umami's privacy practices,
-        visit
-        <a
-          href="https://umami.is/docs/faq"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-accent underline hover:opacity-80">Umami Documentation</a
-        >.
-      </p>
 
       <h2 class="mt-8 mb-4 text-2xl font-semibold">How Your Information Is Used</h2>
-      <p class="mb-4 leading-7">The collected information is used to:</p>
-      <ul class="my-4 list-disc space-y-2 pl-6">
-        <li class="leading-7">Process and resize your images</li>
-        <li class="leading-7">Improve the tool and user experience</li>
-        <li class="leading-7">Understand usage patterns and optimise performance</li>
-        <li class="leading-7">Fix bugs and technical issues</li>
-      </ul>
+      <p class="mb-4 leading-7">
+        Your images are used only to process and resize them on your device. No data is collected,
+        stored, or shared.
+      </p>
 
       <h2 class="mt-8 mb-4 text-2xl font-semibold">Data Retention</h2>
-      <ul class="my-4 list-disc space-y-2 pl-6">
-        <li class="leading-7">
-          <strong class="font-semibold">Uploaded Images:</strong> Deleted immediately after processing
-          (within seconds)
-        </li>
-        <li class="leading-7">
-          <strong class="font-semibold">Analytics Data:</strong> Retained by Umami according to their
-          retention policies (typically aggregated and anonymised)
-        </li>
-      </ul>
+      <p class="mb-4 leading-7">
+        No data is retained. Your images are processed in memory and cleared immediately after
+        processing.
+      </p>
 
       <h2 class="mt-8 mb-4 text-2xl font-semibold">Your Rights</h2>
       <p class="mb-4 leading-7">You have the right to:</p>
@@ -100,20 +66,13 @@
 
       <h2 class="mt-8 mb-4 text-2xl font-semibold">Cookies and Tracking</h2>
       <p class="mb-4 leading-7">
-        This tool uses Umami Analytics, which does not use cookies and does not track personal data.
-        Umami is fully GDPR compliant and respects user privacy by design. No cookie consent banner
-        is required.
+        This tool does not use cookies, tracking, or analytics. No cookies are set on your device.
       </p>
 
       <h2 class="mt-8 mb-4 text-2xl font-semibold">Third-Party Services</h2>
-      <p class="mb-4 leading-7">This tool uses the following third-party service:</p>
-      <ul class="my-4 list-disc space-y-2 pl-6">
-        <li class="leading-7">
-          <strong class="font-semibold">Umami Analytics:</strong> For privacy-friendly analytics and
-          understanding user behavior. Umami is GDPR compliant and does not use cookies or track personal
-          data.
-        </li>
-      </ul>
+      <p class="mb-4 leading-7">
+        This tool does not use any third-party services. All processing happens on your device.
+      </p>
 
       <h2 class="mt-8 mb-4 text-2xl font-semibold">Children's Privacy</h2>
       <p class="mb-4 leading-7">
