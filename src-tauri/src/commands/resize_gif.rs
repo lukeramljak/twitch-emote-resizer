@@ -111,19 +111,9 @@ fn resize_gif_frame(
     target_size: u32,
     delay: u16,
 ) -> Result<GifFrame> {
-    // For simplicity, we'll decode the indexed frame to RGBA, resize it, then re-quantize
-    // This is not the most efficient approach, but it ensures correct color handling
-
-    // Create a dummy palette (just use grayscale for quantization purposes)
-    let mut rgba_frame = image::RgbaImage::new(src_width as u32, src_height as u32);
-
-    // Fill with indexed color values (in practice GIF frames have a palette)
-    // For now, treat indexed values as gray for visualization
-    for (i, &idx) in indexed_data.iter().enumerate() {
-        let x = (i % src_width) as u32;
-        let y = (i / src_width) as u32;
-        rgba_frame.put_pixel(x, y, image::Rgba([idx, idx, idx, 255]));
-    }
+    // Convert indexed pixels to RGBA using a standard palette
+    // This is a simplified approach - in production, we'd extract the actual GIF palette
+    let rgba_frame = create_rgba_from_indexed(indexed_data, src_width as u32, src_height as u32);
 
     // Resize frame
     let resized_width = (src_width as f32 * (scale as f32)) as u32;
@@ -224,6 +214,32 @@ fn quantize_to_indexed(img: &image::RgbaImage, max_colors: usize) -> Result<Vec<
         .map_err(|e| anyhow!("Failed to remap image: {}", e))?;
 
     Ok(pixels)
+}
+
+fn create_rgba_from_indexed(indexed: &[u8], width: u32, height: u32) -> image::RgbaImage {
+    // Use a simple RGB(3,3,2) palette (216 colors) + grayscale for other indices
+    let mut img = image::RgbaImage::new(width, height);
+
+    for (i, &idx) in indexed.iter().enumerate() {
+        let x = (i as u32) % width;
+        let y = (i as u32) / width;
+
+        let (r, g, b) = if idx < 216 {
+            // RGB 3-3-2 palette
+            let r = ((idx / 36) % 6) as u8 * 51;
+            let g = ((idx / 6) % 6) as u8 * 51;
+            let b = (idx % 6) as u8 * 85;
+            (r, g, b)
+        } else {
+            // Grayscale for remaining indices
+            let gray = 255 - ((idx as u16 - 216) * 255 / 40) as u8;
+            (gray, gray, gray)
+        };
+
+        img.put_pixel(x, y, image::Rgba([r, g, b, 255]));
+    }
+
+    img
 }
 
 fn encode_gif(frames: &[GifFrame], size: u32) -> Result<Vec<u8>> {
