@@ -39,13 +39,13 @@ cd emote-resizer
 2. Install the dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
 3. Start the development server:
 
 ```bash
-bun run dev
+pnpm run dev
 ```
 
 The app will be available at `http://localhost:3000`.
